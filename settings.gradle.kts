@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Customer Review Classifier"
 include(":app")
+

@@ -5,12 +5,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.net.URLEncoder
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,21 +15,57 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvSentiment: TextView
     private lateinit var tvConfidence: TextView
 
-    // Android Emulator menggunakan 10.0.2.2
-    // untuk mengakses localhost komputer host.
-    private val apiUrl = "http://10.0.2.2:8000/predict"
+    // Tokenizer membaca vocab.txt dari assets.
+    private lateinit var tokenizer: TextTokenizer
+
+    // Predictor akan memuat model ONNX saat pertama kali digunakan.
+    private var onnxPredictor: OnnxPredictor? = null
+
+    // Jalankan inference di background thread agar UI tidak freeze.
+    private val executor: ExecutorService =
+        Executors.newSingleThreadExecutor()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
 
+        // ----------------------------------------------------
         // Hubungkan View dari XML
+        // ----------------------------------------------------
+
         etReview = findViewById(R.id.etReview)
         btnPredict = findViewById(R.id.btnPredict)
         tvSentiment = findViewById(R.id.tvSentiment)
         tvConfidence = findViewById(R.id.tvConfidence)
 
+        // ----------------------------------------------------
+        // Inisialisasi tokenizer
+        // ----------------------------------------------------
+
+        try {
+            tokenizer = TextTokenizer(
+                context = this,
+                vocabFileName = "vocab.txt",
+                maxLength = 128
+            )
+
+        } catch (e: Exception) {
+
+            tvSentiment.text = "ERROR"
+
+            tvConfidence.text =
+                e.message ?: "Tokenizer gagal dimuat"
+
+            btnPredict.isEnabled = false
+
+            return
+        }
+
+        // ----------------------------------------------------
         // Tombol prediksi
+        // ----------------------------------------------------
+
         btnPredict.setOnClickListener {
             predictReview()
         }
@@ -41,134 +73,127 @@ class MainActivity : AppCompatActivity() {
 
     private fun predictReview() {
 
-        val review = etReview.text.toString().trim()
+        val review = etReview.text
+            .toString()
+            .trim()
 
+        // ----------------------------------------------------
         // Validasi input
+        // ----------------------------------------------------
+
         if (review.isEmpty()) {
-            etReview.error = "Review tidak boleh kosong"
+
+            etReview.error =
+                "Review tidak boleh kosong"
+
             etReview.requestFocus()
+
             return
         }
 
-        // Ubah tampilan tombol saat proses
+        // ----------------------------------------------------
+        // Ubah UI saat proses
+        // ----------------------------------------------------
+
         btnPredict.isEnabled = false
-        btnPredict.text = "Memproses..."
+        btnPredict.text = "MEMPROSES..."
 
         tvSentiment.text = "Memproses..."
-        tvConfidence.text = "Mohon tunggu"
+        tvConfidence.text =
+            "Model sedang melakukan prediksi offline"
 
-        Thread {
+        // ----------------------------------------------------
+        // Jalankan inference di background
+        // ----------------------------------------------------
 
-            var connection: HttpURLConnection? = null
+        executor.execute {
 
             try {
 
-                // Membuka koneksi ke API
-                val url = URL(apiUrl)
-                connection = url.openConnection() as HttpURLConnection
+                // ------------------------------------------------
+                // Load ONNX predictor saat pertama kali dipakai
+                // ------------------------------------------------
 
-                connection.requestMethod = "POST"
-                connection.connectTimeout = 10000
-                connection.readTimeout = 10000
+                val predictor =
+                    onnxPredictor ?: synchronized(this) {
 
-                connection.setRequestProperty(
-                    "Content-Type",
-                    "application/json"
-                )
+                        onnxPredictor
+                            ?: OnnxPredictor(
+                                context = this
+                            ).also {
+                                onnxPredictor = it
+                            }
+                    }
 
-                connection.setRequestProperty(
-                    "Accept",
-                    "application/json"
-                )
+                // ------------------------------------------------
+                // Tokenisasi review
+                // ------------------------------------------------
 
-                connection.doOutput = true
+                val encoded =
+                    tokenizer.encode(review)
 
-                // Escape string JSON dengan JSONObject
-                val jsonBody = JSONObject()
-                jsonBody.put("review", review)
+                // ------------------------------------------------
+                // Jalankan model
+                // ------------------------------------------------
 
-                // Kirim request ke API
-                connection.outputStream.use { output ->
-                    output.write(
-                        jsonBody.toString().toByteArray(Charsets.UTF_8)
+                val result =
+                    predictor.predict(
+                        inputIds = encoded.inputIds,
+                        attentionMask = encoded.attentionMask,
+                        tokenTypeIds = encoded.tokenTypeIds
                     )
-                    output.flush()
-                }
 
-                // Ambil status HTTP
-                val responseCode = connection.responseCode
+                // ------------------------------------------------
+                // Update UI
+                // ------------------------------------------------
 
-                val inputStream =
-                    if (responseCode in 200..299) {
-                        connection.inputStream
-                    } else {
-                        connection.errorStream
-                    }
+                runOnUiThread {
 
-                val response = BufferedReader(
-                    InputStreamReader(
-                        inputStream,
-                        Charsets.UTF_8
-                    )
-                ).use { reader ->
-                    reader.readText()
-                }
+                    tvSentiment.text =
+                        result.label
 
-                // Jika request berhasil
-                if (responseCode in 200..299) {
+                    tvConfidence.text =
+                        "Confidence: %.2f%%".format(
+                            result.confidence * 100f
+                        )
 
-                    val jsonResponse = JSONObject(response)
-
-                    val sentiment =
-                        jsonResponse.getString("sentiment")
-
-                    val confidence =
-                        jsonResponse.getDouble("confidence_percent")
-
-                    runOnUiThread {
-
-                        tvSentiment.text = sentiment
-
-                        tvConfidence.text =
-                            "Confidence: %.2f%%".format(confidence)
-
-                        btnPredict.isEnabled = true
-                        btnPredict.text = "PREDIKSI SENTIMEN"
-                    }
-
-                } else {
-
-                    // Jika API mengembalikan error
-                    runOnUiThread {
-
-                        tvSentiment.text = "ERROR"
-
-                        tvConfidence.text =
-                            "API mengembalikan error ($responseCode)"
-
-                        btnPredict.isEnabled = true
-                        btnPredict.text = "PREDIKSI SENTIMEN"
-                    }
+                    btnPredict.isEnabled = true
+                    btnPredict.text =
+                        "PREDIKSI SENTIMEN"
                 }
 
             } catch (e: Exception) {
 
-                // Jika tidak dapat terhubung ke API
+                // ------------------------------------------------
+                // Tangani error inference
+                // ------------------------------------------------
+
                 runOnUiThread {
 
-                    tvSentiment.text = "GAGAL TERHUBUNG"
+                    tvSentiment.text =
+                        "ERROR"
 
                     tvConfidence.text =
-                        e.message ?: "Tidak dapat mengakses API"
+                        e.message
+                            ?: "Gagal menjalankan model"
 
                     btnPredict.isEnabled = true
-                    btnPredict.text = "PREDIKSI SENTIMEN"
+                    btnPredict.text =
+                        "PREDIKSI SENTIMEN"
                 }
-
-            } finally {
-
-                connection?.disconnect()
             }
-        }.start()
+        }
+    }
+
+    override fun onDestroy() {
+
+        // Hentikan background executor
+        executor.shutdownNow()
+
+        // Tutup ONNX session
+        onnxPredictor?.close()
+        onnxPredictor = null
+
+        super.onDestroy()
     }
 }

@@ -1,0 +1,17 @@
+{
+  "model_name": "IndoBERT Customer Review Sentiment",
+  "base_model": "indobenchmark/indobert-base-p1",
+  "model_format": "ONNX",
+  "quantization": "INT8 Dynamic Quantization",
+  "max_length": 128,
+  "num_labels": 2,
+  "labels": {
+    "0": "NEGATIF",
+    "1": "POSITIF"
+  },
+  "test_accuracy_percent": 93.36,
+  "test_precision_percent": 94.2,
+  "test_recall_percent": 92.41,
+  "test_f1_percent": 93.3,
+  "model_size_mb": 119.83
+}
