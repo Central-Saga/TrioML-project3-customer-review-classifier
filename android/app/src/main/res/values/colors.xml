@@ -1,2 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+
+    <!-- Background -->
+    <color name="background_navy">#10151F</color>
+    <color name="surface_primary">#192430</color>
+    <color name="surface_input">#111C26</color>
+    <color name="surface_result">#132D30</color>
+    <color name="surface_chip">#153238</color>
+
+    <!-- Accent -->
+    <color name="accent_teal">#65F4E5</color>
+    <color name="border_teal">#2B7778</color>
+    <color name="border_input">#344B57</color>
+
+    <!-- Text -->
+    <color name="text_primary">#F2FFFF</color>
+    <color name="text_secondary">#B5C8D0</color>
+    <color name="text_muted">#8BA0AE</color>
+    <color name="text_hint">#718794</color>
+
+    <!-- Divider -->
+    <color name="divider_color">#294047</color>
+
+</resources>
