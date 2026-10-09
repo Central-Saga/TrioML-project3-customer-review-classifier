@@ -21,5 +21,6 @@
 
     <!-- Divider -->
     <color name="divider_color">#294047</color>
+    <color name="ripple_teal">#5565F4E5</color>
 
 </resources>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
     android:layout_width="match_parent"
@@ -16,7 +16,7 @@
         android:paddingEnd="22dp"
         android:paddingBottom="28dp">
 
-        <!-- Offline Status: tanpa background dan bullet -->
+        <!-- Offline Status -->
         <TextView
             android:id="@+id/tvOfflineBadge"
             android:layout_width="wrap_content"
@@ -87,13 +87,15 @@
 
         </LinearLayout>
 
-        <!-- Review Input -->
+        <!-- Review Input with focus animation -->
         <EditText
             android:id="@+id/etReview"
             android:layout_width="match_parent"
             android:layout_height="156dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_review_input"
+            android:elevation="2dp"
+            android:stateListAnimator="@animator/lift_on_interaction"
             android:gravity="top|start"
             android:hint="Contoh: Barangnya bagus dan pengiriman cepat..."
             android:inputType="textMultiLine|textCapSentences"
@@ -115,34 +117,37 @@
             android:textColor="@color/text_muted"
             android:textSize="12sp" />
 
-        <!-- Prediction Button -->
+        <!-- Prediction Button with shadow and animation -->
         <Button
             android:id="@+id/btnPredict"
             android:layout_width="match_parent"
             android:layout_height="58dp"
             android:layout_marginTop="20dp"
             android:background="@drawable/bg_predict_button"
-            android:backgroundTint="@color/accent_teal"
-            android:elevation="0dp"
+            android:backgroundTint="@null"
+            android:elevation="3dp"
+            android:stateListAnimator="@animator/lift_on_interaction"
             android:gravity="center"
             android:letterSpacing="0.02"
             android:minHeight="0dp"
             android:minWidth="0dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:text="✦  ANALISIS SENTIMEN"
+            android:text="âœ¦  ANALISIS SENTIMEN"
             android:textAllCaps="false"
             android:textColor="@color/background_navy"
             android:textSize="15sp"
             android:textStyle="bold" />
 
-        <!-- Prediction Result -->
+        <!-- Prediction Result Card -->
         <LinearLayout
             android:id="@+id/resultContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
             android:background="@drawable/bg_result_card"
+            android:elevation="3dp"
+            android:stateListAnimator="@animator/lift_on_interaction"
             android:orientation="vertical"
             android:padding="20dp">
 
@@ -162,7 +167,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="22dp"
                 android:gravity="center"
-                android:text="—"
+                android:text="â€”"
                 android:textColor="@color/text_primary"
                 android:textSize="29sp"
                 android:textStyle="bold" />
@@ -173,7 +178,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="9dp"
                 android:gravity="center"
-                android:text="Confidence: —"
+                android:text="Confidence: â€”"
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
 
@@ -201,7 +206,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="25dp"
             android:gravity="center"
-            android:text="Powered by IndoBERT • ONNX Runtime"
+            android:text="Powered by IndoBERT â€¢ ONNX Runtime"
             android:textColor="@color/text_muted"
             android:textSize="12sp" />
 
@@ -210,7 +215,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:gravity="center"
-            android:text="ON-DEVICE AI • NO INTERNET REQUIRED"
+            android:text="ON-DEVICE AI â€¢ NO INTERNET REQUIRED"
             android:textColor="@color/accent_teal"
             android:textSize="10sp"
             android:letterSpacing="0.05" />

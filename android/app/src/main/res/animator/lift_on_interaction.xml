@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Saat tombol ditekan -->
+    <item android:state_pressed="true">
+        <set android:ordering="together">
+            <objectAnimator
+                android:propertyName="translationZ"
+                android:duration="120"
+                android:valueTo="10"
+                android:valueType="floatType" />
+
+            <objectAnimator
+                android:propertyName="scaleX"
+                android:duration="120"
+                android:valueTo="0.985"
+                android:valueType="floatType" />
+
+            <objectAnimator
+                android:propertyName="scaleY"
+                android:duration="120"
+                android:valueTo="0.985"
+                android:valueType="floatType" />
+        </set>
+    </item>
+
+    <!-- Saat kursor mouse berada di atas komponen -->
+    <item android:state_hovered="true">
+        <set android:ordering="together">
+            <objectAnimator
+                android:propertyName="translationZ"
+                android:duration="180"
+                android:valueTo="8"
+                android:valueType="floatType" />
+
+            <objectAnimator
+                android:propertyName="scaleX"
+                android:duration="180"
+                android:valueTo="1.015"
+                android:valueType="floatType" />
+
+            <objectAnimator
+                android:propertyName="scaleY"
+                android:duration="180"
+                android:valueTo="1.015"
+                android:valueType="floatType" />
+        </set>
+    </item>
+
+    <!-- Saat kolom input mendapatkan fokus -->
+    <item android:state_focused="true">
+        <set android:ordering="together">
+            <objectAnimator
+                android:propertyName="translationZ"
+                android:duration="160"
+                android:valueTo="6"
+                android:valueType="floatType" />
+
+            <objectAnimator
+                android:propertyName="scaleX"
+                android:duration="160"
+                android:valueTo="1.0"
+                android:valueType="floatType" />
+
+            <objectAnimator
+                android:propertyName="scaleY"
+                android:duration="160"
+                android:valueTo="1.0"
+                android:valueType="floatType" />
+        </set>
+    </item>
+
+    <!-- Kembali ke posisi semula dengan halus -->
+    <item>
+        <set android:ordering="together">
+            <objectAnimator
+                android:propertyName="translationZ"
+                android:duration="180"
+                android:valueTo="0"
+                android:valueType="floatType" />
+
+            <objectAnimator
+                android:propertyName="scaleX"
+                android:duration="180"
+                android:valueTo="1.0"
+                android:valueType="floatType" />
+
+            <objectAnimator
+                android:propertyName="scaleY"
+                android:duration="180"
+                android:valueTo="1.0"
+                android:valueType="floatType" />
+        </set>
+    </item>
+
+</selector>
